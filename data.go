@@ -15,6 +15,7 @@ var (
 	ErrInvalidClientID      = errors.New("invalid client_id")
 	ErrInvalidClientSecret  = errors.New("invalid client_secret")
 	ErrInvalidRedirectURI   = errors.New("invalid redirect_uri")
+	ErrTokenNotReady        = errors.New("token not ready")
 	ErrTokenExpired         = errors.New("token expired")
 	ErrInvalidIssValue      = errors.New("invalid iss value")
 	ErrInvalidRefreshToken  = errors.New("invalid refresh token")
@@ -187,8 +188,8 @@ func (t *appleToken) IsValid() (bool, error) {
 	if t.claims.Exp < now {
 		return false, ErrTokenExpired
 	}
-	if t.claims.Iat > now {
-		return false, ErrTokenExpired
+	if t.claims.Iat > now+(time.Minute/time.Second*time.Millisecond).Milliseconds() {
+		return false, ErrTokenNotReady
 	}
 	return true, nil
 }
